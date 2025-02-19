@@ -246,8 +246,6 @@ attachment:
     skip undefined: True
     # docx template file: enforcing_child_custody_action_plan.docx
     content: |
-      ${ one_fits_all['print'].subject }
-      
       ${ one_fits_all['print'].content }
     valid formats:
       - pdf

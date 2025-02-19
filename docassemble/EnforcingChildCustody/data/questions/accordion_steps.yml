@@ -30,7 +30,7 @@ code: |
       step_list.append((other_order_step, "other_order_idx"))
   
     step_list.append((get_help, "get_help_idx"))
-    # step_list.append((other_parts_step, "other_parts_idx"))
+    step_list.append((other_parts_step["screen"], "other_parts_idx", other_parts_step["print"]))
     
   for iter_idx, step_tuple in enumerate( step_list ):
     define(step_tuple[ 1 ], iter_idx + 1)
@@ -38,6 +38,7 @@ code: |
 ---
 objects:
   - child_support_step: DADict
+  - other_parts_step: DADict
 ---
 template: one_fits_all[i]
 subject: |
@@ -61,17 +62,6 @@ code: |
       except Exception:
         pass
     return collapse_template(step_tuple[0], closed_icon="plus", open_icon="minus")
----
-code: |
-  class Boo(object):
-    pass
-  
-  def format_latex(key, template):
-    log( key == "screen", 'console' )
-    if key == "screen":
-       return template
-    obj = DALazyTemplate(subject='s', content='c')
-    return obj
 ---
 template: child_support_step[i]
 subject: |
@@ -99,14 +89,43 @@ subject: |
 content: |
   Get information from the court website about enforcing an other court order. [Enforce an Order (not money)](https://courts.alaska.gov/shc/family/shcenforce.htm#forms).
 ---
-template: other_parts_step
+template: other_parts_step[i]
 subject: |
-  Step ${ other_parts_idx }: Learn about other parts of a custody case
+  % if i == "print":
+  \section{
+  % endif
+  % if False:
+  Step ${ other_parts_idx }: ${ "foo" if other_parts_idx > 0 else "bar" } Learn about other parts of a custody case
+  % else:
+  Step ${ other_parts_idx }: ${ "zoom" if other_parts_idx > 0 else "chair" } Learn about other parts of a divorce case
+  % endif
+  % if i == "print":
+  }
+  % endif
 content: |
-  <div class='step-subheading'>More Guided Assistants</div>
-  <p><a href = "https://docassemble.akcourts.gov/start/RespondingInChildCustody">Responding if your spouse starts a custody case</a></p>
+
+  % if i == "screen":
+  <div class='step-subheading'>${ more_assistants_title }</div>
+  % else:
+  ${ more_assistants_title }
+  % endif
+
+  % if i == "screen":
+  <p><a href = "${ link_to_responding }">${ text_for_responding }</a></p>
+
+  ...
+  % else:
+
+  * ${ text_for_responding }: [${ link_to_responding }](${ link_to_responding })
+
+  ...
+  % endif
+
     <p><a href = "https://docassemble.akcourts.gov/start/ChangingChildCustody">Changing a custody order</a></p>
-    
+
+
+
+  % if i == "screen":
   <div class='step-subheading'>Self-Help Center: Family Law</div>
   
   <p><a href = "https://courts.alaska.gov/shc/family/answer.htm">Responding to a Custody Case</a></p>
@@ -115,3 +134,22 @@ content: |
   <p><a href = "https://courts.alaska.gov/shc/family/shctrial.htm">Getting Ready for a Hearing or Trial</a></p>
   <p><a href = "https://courts.alaska.gov/shc/family/shcmodify.htm">Changing a Custody / Support Order</a></p>
 
+  % else:
+  Self-Help Center: Family Law
+
+  Responding to a Custody Case: [https://courts.alaska.gov/shc/family/answer.htm](https://courts.alaska.gov/shc/family/answer.htm)
+  Asking for an Order/filing a motion: [https://courts.alaska.gov/shc/family/motions.htm](https://courts.alaska.gov/shc/family/motions.htm)
+  Creating a Parenting Plan: [https://courts.alaska.gov/shc/family/shcplan.htm](https://courts.alaska.gov/shc/family/shcplan.htm)
+  Getting Ready for a Hearing or Trial: [https://courts.alaska.gov/shc/family/shctrial.htm](https://courts.alaska.gov/shc/family/shctrial.htm)
+  Changing a Custody / Support Order: [https://courts.alaska.gov/shc/family/shcmodify.htm](https://courts.alaska.gov/shc/family/shcmodify.htm)
+  % endif
+
+---
+template: more_assistants_title
+content: More Guided Assistants
+---
+template: link_to_responding
+content: https://docassemble.akcourts.gov/start/RespondingInChildCustody
+---
+template: text_for_responding
+content: Responding if your spouse starts a custody case

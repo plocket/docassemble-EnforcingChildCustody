@@ -1,0 +1,117 @@
+id: final screen
+decoration: pen-to-square
+event: confirmation_and_download
+question: |
+  ${ one_fits_all["screen"].subject }
+subquestion: |
+  
+  ${ one_fits_all["screen"].content }
+  
+  ${ al_user_bundle.download_list_html() }
+  
+  [Download PDF](${ enforcing_child_custody_attachment_latex.pdf.url_for() })
+buttons:
+  - Start over: restart
+---
+code: |
+  step_list = []
+  user_need = 'enforce custody order'
+  
+  if order_type.all_false():
+    step_list.append((wrong_tf, "wrong_tf_idx"))
+    step_list.append((wrong_tf2, "wrong_tf2_idx"))
+    step_list.append((get_help, "get_help_idx"))
+  else:
+    if order_type['child support']:
+      step_list.append([child_support_step["screen"], "child_support_idx", child_support_step["print"]])
+    if order_type['visitation']:
+      step_list.append((visitation_step, "visitation_idx"))
+    if order_type['other']:
+      step_list.append((other_order_step, "other_order_idx"))
+  
+    step_list.append((get_help, "get_help_idx"))
+    # step_list.append((other_parts_step, "other_parts_idx"))
+    
+  for iter_idx, step_tuple in enumerate( step_list ):
+    define(step_tuple[ 1 ], iter_idx + 1)
+  get_steps = True
+---
+objects:
+  - child_support_step: DADict
+---
+template: one_fits_all[i]
+subject: |
+  # <i class="fa-thin fa-list"></i>Your Personal Action Plan is ready!
+content: |
+  % if i == 'screen':  
+  Your Personal Action Plan for changing your custody or parenting plan in ${ len(step_list) } steps.
+  % else:
+  ${ all_variables(special='metadata').get('title') }
+  % endif
+
+  % for iteration_index, step_tuple in enumerate( step_list ):
+  ${ chair( i, step_tuple ) }
+  % endfor
+---
+code: |
+  def chair( key, step_tuple ):
+    if key == "print":
+      try:
+        return collapse_template(step_tuple[2], closed_icon="plus", open_icon="minus")
+      except Exception:
+        pass
+    return collapse_template(step_tuple[0], closed_icon="plus", open_icon="minus")
+---
+code: |
+  class Boo(object):
+    pass
+  
+  def format_latex(key, template):
+    log( key == "screen", 'console' )
+    if key == "screen":
+       return template
+    obj = DALazyTemplate(subject='s', content='c')
+    return obj
+---
+template: child_support_step[i]
+subject: |
+  Step ${ child_support_idx }: Enforcing a child support order
+content: |
+  % if i == "screen":
+  Hey this is a screen
+  % else:
+  Official looking doc, boss
+  % endif
+  
+  Get information from the court website about enforcing a child support order: [Enforce a Child Support Order](http://courts.alaska.gov/shc/family/shcenforce.htm#child-support).
+  
+  Use the Guided Assistant interview: [Changing or Enforcing a Child Support Order in Alaska](https://docassemble.akcourts.gov/start/ChangingEnforcingChildSupport).
+---
+template: visitation_step
+subject: |
+  Step ${ visitation_idx }: Enforcing a visitation schedule order
+content: |
+  Get information from the court website about enforcing an order to follow a visitation schedule. [Enforce a Visitation Schedule Order](https://courts.alaska.gov/shc/family/shcenforce.htm#visits).
+---
+template: other_order_step
+subject: |
+  Step ${ other_order_idx }: Enforcing another court order
+content: |
+  Get information from the court website about enforcing an other court order. [Enforce an Order (not money)](https://courts.alaska.gov/shc/family/shcenforce.htm#forms).
+---
+template: other_parts_step
+subject: |
+  Step ${ other_parts_idx }: Learn about other parts of a custody case
+content: |
+  <div class='step-subheading'>More Guided Assistants</div>
+  <p><a href = "https://docassemble.akcourts.gov/start/RespondingInChildCustody">Responding if your spouse starts a custody case</a></p>
+    <p><a href = "https://docassemble.akcourts.gov/start/ChangingChildCustody">Changing a custody order</a></p>
+    
+  <div class='step-subheading'>Self-Help Center: Family Law</div>
+  
+  <p><a href = "https://courts.alaska.gov/shc/family/answer.htm">Responding to a Custody Case</a></p>
+  <p><a href = "https://courts.alaska.gov/shc/family/motions.htm">Asking for an Order/filing a motion</a></p>
+  <p><a href = "https://courts.alaska.gov/shc/family/shcplan.htm">Creating a Parenting Plan</a></p>
+  <p><a href = "https://courts.alaska.gov/shc/family/shctrial.htm">Getting Ready for a Hearing or Trial</a></p>
+  <p><a href = "https://courts.alaska.gov/shc/family/shcmodify.htm">Changing a Custody / Support Order</a></p>
+
